@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 import psycopg2.pool
 import discord
+from discord.ext.commands import Context
 from discord.ext import commands
 from aiohttp import ClientSession
 
@@ -18,7 +19,6 @@ class CustomBot(commands.Bot):
     def __init__(
         self,
         *args,
-        initial_extensions: List[str],
         # db_pool: psycopg2.pool.AbstractConnectionPool,
         web_client: ClientSession,
         testing_guild_id: Optional[int] = None,
@@ -28,14 +28,17 @@ class CustomBot(commands.Bot):
         # self.db_pool = db_pool
         self.web_client = web_client
         self.testing_guild_id = testing_guild_id
-        self.initial_extensions = initial_extensions
+
+
 
     async def setup_hook(self) -> None:
 
         # here, we are loading extensions prior to sync to ensure we are syncing interactions defined in those extensions.
 
-        for extension in self.initial_extensions:
-            await self.load_extension(extension)
+        for filename in os.listdir('src/cogs'):
+            if filename.endswith('.py'):
+                await self.load_extension(f'cogs.{filename[:-3]}')
+                print(f'Loaded: cogs.{filename[:-3]}')
 
         # In overriding setup hook,
         # we can do things that require a bot prior to starting to process events from the websocket.
@@ -51,8 +54,12 @@ class CustomBot(commands.Bot):
         # This would also be a good place to connect to our database and
         # load anything that should be in memory prior to handling events.
 
+    async def get_context(self, message, *, cls=Context):
+        return await super().get_context(message, cls=cls)
+
     async def on_ready(self):
         print(f'Logged in as {self.user} (ID: {self.user.id})')
+
 
 
 async def main():
@@ -60,6 +67,7 @@ async def main():
     # Setup the bot and db stuff
     load_dotenv()
     DATABASE_URL = os.getenv('DATABASE_URL', '')
+    TEST_GUILD = os.getenv('TEST_GUILD', '')
 
     # When taking over how the bot process is run, you become responsible for a few additional things.
 
@@ -94,9 +102,7 @@ async def main():
 
     async with ClientSession() as our_client: #, psycopg2.pool.ThreadedConnectionPool(1, 4, dsn=DATABASE_URL, sslmode='require') as pool:
         # 2. We become responsible for starting the bot.
-
-        exts = []
-        async with CustomBot(commands.when_mentioned, web_client=our_client, initial_extensions=exts, intents=discord.Intents.default()) as bot: # 2nd param db_pool=pool
+        async with CustomBot(commands.when_mentioned, web_client=our_client, intents=discord.Intents.default(), testing_guild_id=TEST_GUILD) as bot: # 2nd param db_pool=pool
 
             await bot.start(os.getenv('TOKEN', ''))
 
