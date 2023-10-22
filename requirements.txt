@@ -2,3 +2,4 @@ python-decouple==3.8
 aiohttp>=3.8.6
 discord[voice]==2.3.2
 python-dotenv==1.0.0
+psycopg2==2.9.9
