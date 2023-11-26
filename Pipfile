@@ -6,8 +6,12 @@ name = "pypi"
 [packages]
 python-decouple = "==3.8"
 aiohttp = ">=3.8.6"
+discord = {extras = ["voice"], version = "==2.3.2"}
+django = "==4.2.7"
+python-dotenv = "==1.0.0"
+psycopg2 = "==2.9.9"
 
 [dev-packages]
 
 [requires]
-python_version = "3.12"
+python_version = "3.11"
