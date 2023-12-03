@@ -16,7 +16,11 @@ class CustomCog(commands.Cog):
 
     @app_commands.command()
     async def something(self, ctx: Interaction):
-        await ctx.response.send_message('uh')
+        await ctx.response.send_message('Testing changes 3')
+
+    @commands.command()
+    async def test_something(self, ctx: Context):
+        await ctx.send('Testing something')
 
 async def setup(bot):
     await bot.add_cog(CustomCog(bot))

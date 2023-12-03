@@ -1,0 +1,12 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python3 /app/src/main.py
+    volumes:
+      - .:/app
+    ports:
+      - 9001:9001
+    environment:
+      - PYTHONUNBUFFERED=1

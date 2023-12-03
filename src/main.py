@@ -14,7 +14,6 @@ from discord.ext.commands import Context
 from discord.ext import commands
 from aiohttp import ClientSession
 
-
 class CustomBot(commands.Bot):
     def __init__(
         self,
@@ -53,13 +52,14 @@ class CustomBot(commands.Bot):
 
         # This would also be a good place to connect to our database and
         # load anything that should be in memory prior to handling events.
-
+    
     async def get_context(self, message, *, cls=Context):
         return await super().get_context(message, cls=cls)
+    
 
     async def on_ready(self):
         print(f'Logged in as {self.user} (ID: {self.user.id})')
-
+    
 
 
 async def main():
@@ -109,5 +109,6 @@ async def main():
 
 
 # For most use cases, after defining what needs to run, we can just tell asyncio to run it:
-asyncio.run(main())
+if __name__ == '__main__':
+    asyncio.run(main())
 

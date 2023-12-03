@@ -7,7 +7,6 @@ from discord import Interaction
 
 IS_ENABLED = False
 
-# For some reason using os.listdir breaks the entire module
 class ReloaderCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -23,7 +22,7 @@ class ReloaderCog(commands.Cog):
         for filename in os.listdir('src/cogs'):
             if (filename.endswith('.py') and not filename.startswith('reloader_cog')):
                 await self.bot.reload_extension(f'cogs.{filename[:-3]}')
-                extension_string = ''.join(f'cogs.{filename[:-3]}\n')
+                extension_string = ''.join(f'\tcogs.{filename[:-3]}\n')
 
 
         if (extension_string == ''):
