@@ -12,3 +12,4 @@ class IntroSound(models.Model):
     short = models.BooleanField(default=False)
     user = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
     generic = models.BooleanField(default=False)
+    length = models.IntegerField()
