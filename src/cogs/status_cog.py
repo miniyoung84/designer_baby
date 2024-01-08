@@ -1,10 +1,6 @@
 from discord.ext import commands
-from discord import app_commands
 from discord.ext.commands import Context
-from discord import Interaction
-from discord import Client
-from discord import Game
-from discord import Status
+from discord import app_commands, Game, Status
 
 IS_ENABLED = True
 
