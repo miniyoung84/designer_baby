@@ -18,9 +18,9 @@ class MapCog(commands.Cog):
         region=str(region)
         region=region.upper()
         if region=="KURU":
-            await ctx.send(file=File("./Content/Kuru.JPG"))
+            await ctx.send(file=File("./assets/images/Kuru.JPG"))
         else:
-            await ctx.send(file=File("./Content/Mars2.png"))
+            await ctx.send(file=File("./assets/images/Mars2.png"))
 
 async def setup(bot):
     await bot.add_cog(MapCog(bot))
