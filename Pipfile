@@ -5,13 +5,13 @@ name = "pypi"
 
 [packages]
 python-decouple = "==3.8"
-aiohttp = ">=3.8.6"
+aiohttp = "==3.9.5"
 discord = {extras = ["voice"], version = "==2.3.2"}
-django = "==4.2.11"
-python-dotenv = "==1.0.0"
-psycopg2 = "==2.9.9"
+django = "==5.0.4"
+python-dotenv = "==1.0.1"
+psycopg = "==3.1.18"
 
 [dev-packages]
 
 [requires]
-python_version = "3.11"
+python_version = "3.12"
