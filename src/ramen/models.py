@@ -7,6 +7,7 @@ class Player(models.Model):
     channel = models.IntegerField()
     silenced = models.BooleanField()
     ese = models.IntegerField()
+    pet = models.TextField(blank=True, null=True)
     connections = models.ManyToManyField("self", blank=True, null=True)
 class Place(models.Model):
     name = models.CharField(max_length=255)
