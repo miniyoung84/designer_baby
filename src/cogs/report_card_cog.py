@@ -34,16 +34,18 @@ class ReportCardCog(commands.Cog):
         """Pull grade from database"""
         return grades[raw_grade]
 
-    async def build_embed(self, character: str, subject: str) -> Embed:
-        grade = self.get_grade(character=character, subject=subject)
-        return Embed(title=subject, description=grade).set_author(name=character)
+    async def build_embed(self, character: str, subjects: list) -> Embed:
+        description = ""
+        for subject in subjects:
+            grade = self.get_grade(character=character, subject=subject)
+            description += (grade + )
+        return Embed(title=subject, description=description).set_author(name=character)
 
     @app_commands.command()
     async def get_report_card(self, ctx: Interaction, character: str):
-        # Max embeds that can be sent is 10
-        embeds = []
-        # Get the 10 best  
-        await ctx.response.send_message(embeds=embeds)
+        # Get the 10 best subjects from the db
+        embed = self.build_embed(character=character, subjects=subjects)
+        await ctx.response.send_message(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(ReportCardCog(bot))

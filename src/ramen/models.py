@@ -46,6 +46,8 @@ class Character(models.Model):
     major = models.CharField(max_length=255)
     minor = models.CharField(max_length=255)
     year = models.IntegerField(blank=True, null=True) #1 = Freshman, 2 = Sophomore, 3 = Junior, 4 = Senior
+    primary_weapon = models.CharField(max_length=255, blank=True, null=True)
+    secondary_weapon = models.CharField(max_length=255, blank=True, null=True)
 
     #Foreign Keys
     player = models.ForeignKey("Player", on_delete=models.CASCADE)
