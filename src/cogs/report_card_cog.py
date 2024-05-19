@@ -38,7 +38,7 @@ class ReportCardCog(commands.Cog):
         description = ""
         for subject in subjects:
             grade = self.get_grade(character=character, subject=subject)
-            description += (grade + )
+            description += (subject + ": " + grade + "\n")
         return Embed(title=subject, description=description).set_author(name=character)
 
     @app_commands.command()
