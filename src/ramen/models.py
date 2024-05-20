@@ -7,7 +7,6 @@ class Player(models.Model):
     channel = models.IntegerField()
     silenced = models.BooleanField()
     ese = models.IntegerField()
-    pet = models.TextField(blank=True, null=True)
     connections = models.ManyToManyField("self", blank=True, null=True)
 class Place(models.Model):
     name = models.CharField(max_length=255)
@@ -25,8 +24,8 @@ class Dorm(models.Model):
 
 class Subject(models.Model):
     name = models.CharField(max_length=255)
+    main_hall = models.ForeignKey("Place", on_delete=models.CASCADE, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-
 class Character(models.Model):
     #Name
     first_name = models.CharField(max_length=255, blank=True, null=True)
@@ -58,6 +57,7 @@ class Character(models.Model):
     dorm = models.ForeignKey("Dorm", on_delete=models.CASCADE)
 
     #Misc
+    pet = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
 class Grade(models.Model):
