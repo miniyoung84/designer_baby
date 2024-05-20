@@ -4,10 +4,13 @@ from django.db import models
 
 class Player(models.Model):
     name = models.CharField(max_length=255)
-    channel = models.IntegerField()
-    silenced = models.BooleanField()
+    channel_id = models.IntegerField()
+    user_id = models.IntegerField()
+    silenced = models.BooleanField(default=False)
     ese = models.IntegerField()
     connections = models.ManyToManyField("self", blank=True, null=True)
+    money = models.IntegerField()
+    income = models.IntegerField()
 class Place(models.Model):
     name = models.CharField(max_length=255)
     category = models.CharField(max_length=255)
@@ -21,6 +24,8 @@ class Dorm(models.Model):
     primary_color = models.CharField(max_length=7)
     secondary_color = models.CharField(max_length=7)
     team_name = models.CharField(max_length=255)
+    funds = models.IntegerField()
+    income = models.IntegerField()
 
 class Subject(models.Model):
     name = models.CharField(max_length=255)
@@ -42,6 +47,7 @@ class Character(models.Model):
     hair_color = models.CharField(max_length=255, blank=True, null=True)
     eye_color = models.CharField(max_length=255, blank=True, null=True)
     height = models.IntegerField(blank=True, null=True) #inches
+    injury_status = models.CharField(max_length=255, blank=True, null=True)
 
     #Skool
     job = models.CharField(max_length=255)
@@ -53,8 +59,8 @@ class Character(models.Model):
     mutations = models.TextField(blank=True, null=True)
 
     #Foreign Keys
-    player = models.ForeignKey("Player", on_delete=models.CASCADE)
-    dorm = models.ForeignKey("Dorm", on_delete=models.CASCADE)
+    player = models.ForeignKey("Player", on_delete=models.CASCADE, blank=True, null=True)
+    dorm = models.ForeignKey("Dorm", on_delete=models.CASCADE, blank=True, null=True)
 
     #Misc
     pet = models.TextField(blank=True, null=True)
