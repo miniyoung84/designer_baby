@@ -1,11 +1,11 @@
 from django.db import models
-
+from bakery.models import DiscordUser, DiscordChannel
 # Create your models here.
 
 class Player(models.Model):
     name = models.CharField(max_length=255)
-    channel_id = models.IntegerField()
-    user_id = models.IntegerField()
+    channel_id = models.ForeignKey(DiscordChannel, on_delete=models.CASCADE)
+    discord_user = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
     silenced = models.BooleanField(default=False)
     ese = models.IntegerField()
     connections = models.ManyToManyField("self", blank=True, null=True)
@@ -20,7 +20,7 @@ class Place(models.Model):
 class Dorm(models.Model):
     name = models.CharField(max_length=255)
     zone = models.CharField(max_length=3)
-    place = models.ForeignKey("Place", on_delete=models.CASCADE)
+    place = models.ForeignKey(Place, on_delete=models.CASCADE)
     primary_color = models.CharField(max_length=7)
     secondary_color = models.CharField(max_length=7)
     team_name = models.CharField(max_length=255)
@@ -29,7 +29,7 @@ class Dorm(models.Model):
 
 class Subject(models.Model):
     name = models.CharField(max_length=255)
-    main_hall = models.ForeignKey("Place", on_delete=models.CASCADE, blank=True, null=True)
+    main_hall = models.ForeignKey(Place, on_delete=models.CASCADE, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 class Character(models.Model):
     #Name
@@ -51,16 +51,16 @@ class Character(models.Model):
 
     #Skool
     job = models.CharField(max_length=255)
-    major = models.ForeignKey("Subject", on_delete=models.CASCADE)
-    minor = models.ForeignKey("Subject", on_delete=models.CASCADE)
+    major = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    minor = models.ForeignKey(Subject, on_delete=models.CASCADE)
     year = models.IntegerField(blank=True, null=True) #1 = Freshman, 2 = Sophomore, 3 = Junior, 4 = Senior
     primary_weapon = models.CharField(max_length=255, blank=True, null=True)
     secondary_weapon = models.CharField(max_length=255, blank=True, null=True)
     mutations = models.TextField(blank=True, null=True)
 
     #Foreign Keys
-    player = models.ForeignKey("Player", on_delete=models.CASCADE, blank=True, null=True)
-    dorm = models.ForeignKey("Dorm", on_delete=models.CASCADE, blank=True, null=True)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, blank=True, null=True)
+    dorm = models.ForeignKey(Dorm, on_delete=models.CASCADE, blank=True, null=True)
 
     #Misc
     pet = models.TextField(blank=True, null=True)
@@ -68,5 +68,5 @@ class Character(models.Model):
 
 class Grade(models.Model):
     grade = models.IntegerField(blank=True, null=True)
-    subject = models.ForeignKey("Subject", on_delete=models.CASCADE)
-    student = models.ForeignKey("Character", on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    student = models.ForeignKey(Character, on_delete=models.CASCADE)
