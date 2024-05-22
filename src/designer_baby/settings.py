@@ -17,6 +17,8 @@ from decouple import config
 
 LOCAL_DB_USER = config("LOCAL_DB_USER")
 LOCAL_DB_PW = config("LOCAL_DB_PW")
+LOCAL_DB_NAME = config("LOCAL_DB_NAME")
+LOCAL_DB_HOST = config("LOCAL_DB_HOST")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,6 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'bakery.apps.BakeryConfig',
+    'ramen.apps.RamenConfig',
 ]
 
 MIDDLEWARE = [
@@ -82,10 +86,10 @@ WSGI_APPLICATION = 'designer_baby.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': "dduhqs61dl8qbi",
-        'USER': LOCAL_DB_USER,
-        'PASSWORD': LOCAL_DB_PW,
-        'HOST': "cbgm3648033tc7.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com",
+        'NAME': LOCAL_DB_NAME,
+        'USER': "ub5djgbll5qb77",
+        'PASSWORD': "p855c6ab13186d87ba0b799c614e41521f732b1a3538ee0f064bca42e2d9be613",
+        'HOST': LOCAL_DB_HOST,
         'PORT': "5432"
     }
 }

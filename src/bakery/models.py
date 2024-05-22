@@ -1,14 +1,14 @@
 from django.db import models
 # Create your models here.
 class DiscordUser(models.Model):
-  discord_id = models.IntegerField()
+  discord_id = models.BigIntegerField()
   boosts = models.IntegerField(blank=True, null=True)
 
   def __str__(self):
         return self.name
 
 class DiscordChannel(models.Model):
-  discord_id = models.IntegerField()
+  discord_id = models.BigIntegerField()
   competitive = models.BooleanField(default=False)
   max_length = models.IntegerField(blank=True, null=True)
 
@@ -20,7 +20,7 @@ class IntroSound(models.Model):
   short = models.BooleanField(default=False)
   user = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
   generic = models.BooleanField(default=False)
-  length = models.IntegerField(max_length=255)
+  length = models.FloatField()
 
   def __str__(self):
         return self.name
