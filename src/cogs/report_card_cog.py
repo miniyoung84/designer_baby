@@ -1,10 +1,7 @@
+from discord import Interaction, Embed, app_commands, SelectOption
 from discord.ext import commands
-from discord import app_commands
 from discord.ext.commands import Context
-from discord import Interaction
-from discord import Embed
-
-import discord
+from discord.ui import View
 
 IS_ENABLED = True
 
