@@ -8,14 +8,20 @@ class Player(models.Model):
     discord_user = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
     silenced = models.BooleanField(default=False)
     ese = models.IntegerField()
-    connections = models.ManyToManyField("self", blank=True, null=True)
-    money = models.IntegerField()
-    income = models.IntegerField()
+    connections = models.ManyToManyField("self", blank=True)
+    money = models.IntegerField(default=0)
+    income = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name
 class Place(models.Model):
     name = models.CharField(max_length=255)
     category = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
 
 class Dorm(models.Model):
     name = models.CharField(max_length=255)
@@ -24,13 +30,19 @@ class Dorm(models.Model):
     primary_color = models.CharField(max_length=7)
     secondary_color = models.CharField(max_length=7)
     team_name = models.CharField(max_length=255)
-    funds = models.IntegerField()
-    income = models.IntegerField()
+    funds = models.IntegerField(default=0)
+    income = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name
 
 class Subject(models.Model):
     name = models.CharField(max_length=255)
     main_hall = models.ForeignKey(Place, on_delete=models.CASCADE, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
 class Character(models.Model):
     #Name
     first_name = models.CharField(max_length=255, blank=True, null=True)
@@ -51,8 +63,8 @@ class Character(models.Model):
 
     #Skool
     job = models.CharField(max_length=255)
-    major = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    minor = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    major = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='major_students')
+    minor = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='minor_students')
     year = models.IntegerField(blank=True, null=True) #1 = Freshman, 2 = Sophomore, 3 = Junior, 4 = Senior
     primary_weapon = models.CharField(max_length=255, blank=True, null=True)
     secondary_weapon = models.CharField(max_length=255, blank=True, null=True)
@@ -66,7 +78,13 @@ class Character(models.Model):
     pet = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
+    def __str__(self):
+        return self.name
+
 class Grade(models.Model):
     grade = models.IntegerField(blank=True, null=True)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     student = models.ForeignKey(Character, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.student} - {self.subject}: {self.grade}"

@@ -4,10 +4,16 @@ class DiscordUser(models.Model):
   discord_id = models.IntegerField()
   boosts = models.IntegerField(blank=True, null=True)
 
+  def __str__(self):
+        return self.name
+
 class DiscordChannel(models.Model):
   discord_id = models.IntegerField()
   competitive = models.BooleanField(default=False)
   max_length = models.IntegerField(blank=True, null=True)
+
+  def __str__(self):
+        return self.name
 
 class IntroSound(models.Model):
   file_name = models.CharField(max_length=255)
@@ -15,6 +21,9 @@ class IntroSound(models.Model):
   user = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
   generic = models.BooleanField(default=False)
   length = models.IntegerField(max_length=255)
+
+  def __str__(self):
+        return self.name
 
 class ValorantAgent(models.Model):
   name = models.CharField(max_length=255)
@@ -31,3 +40,6 @@ class ValorantAgent(models.Model):
   aoe = models.BooleanField(null=True, blank=True)
   walls = models.BooleanField(null=True, blank=True)
   emoji = models.CharField(max_length=255)
+
+  def __str__(self):
+        return self.name
