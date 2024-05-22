@@ -3,6 +3,7 @@ from django.db import models
 class DiscordUser(models.Model):
   discord_id = models.BigIntegerField()
   boosts = models.IntegerField(blank=True, null=True)
+  description = models.CharField(max_length=255, blank=True, null=True)
 
   def __str__(self):
         return self.name

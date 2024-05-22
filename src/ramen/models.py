@@ -13,7 +13,7 @@ def validate_hex_color(value):
 
 class Player(models.Model):
     name = models.CharField(max_length=255)
-    channel_id = models.ForeignKey(DiscordChannel, on_delete=models.CASCADE)
+    channel = models.ForeignKey(DiscordChannel, on_delete=models.CASCADE)
     discord_user = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
     silenced = models.BooleanField(default=False)
     ese = models.IntegerField()
