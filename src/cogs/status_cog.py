@@ -15,8 +15,6 @@ class StatusCog(commands.Cog):
 
     @app_commands.command()
     async def status(self, ctx, status: str):
-        await self.bot.cursor.execute("SELECT * FROM characters LIMIT 10")
-        print(await self.bot.cursor.fetchone())
         game = Game(status)
         await self.bot.change_presence(status=Status.idle, activity=game)
         await ctx.response.send_message('Status updated to: ' + status)
