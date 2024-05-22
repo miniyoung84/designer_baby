@@ -44,8 +44,10 @@ class ReportCardCog(commands.Cog):
         return Embed(title=subject, description=description).set_author(name=character)
 
     @app_commands.command()
-    async def get_report_card(self, ctx: Interaction, character: str):
+    async def report(self, ctx, character: str):
         # Get the 10 best subjects from the db
+        await self.bot.cursor.execute("SELECT * FROM characters LIMIT 10")
+        print(await self.bot.cursor.fetchone())
         embed = self.build_embed(character=character, subjects=subjects)
         await ctx.response.send_message(embed=embed)
 
