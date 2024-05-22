@@ -1,6 +1,15 @@
 from django.db import models
 from bakery.models import DiscordUser, DiscordChannel
-# Create your models here.
+from django.core.exceptions import ValidationError
+import re
+
+def validate_hex_color(value):
+    # Regular expression to match hex color code in the format #RRGGBB or #RGB
+    hex_color_pattern = r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+
+    # Validate the value against the pattern
+    if not re.match(hex_color_pattern, value):
+        raise ValidationError('Enter a valid hex color code.')
 
 class Player(models.Model):
     name = models.CharField(max_length=255)
@@ -27,8 +36,8 @@ class Dorm(models.Model):
     name = models.CharField(max_length=255)
     zone = models.CharField(max_length=3)
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
-    primary_color = models.CharField(max_length=7)
-    secondary_color = models.CharField(max_length=7)
+    primary_color = models.CharField(max_length=7, validators=[validate_hex_color])
+    secondary_color = models.CharField(max_length=7, validators=[validate_hex_color])
     team_name = models.CharField(max_length=255)
     funds = models.IntegerField(default=0)
     income = models.IntegerField(default=0)
@@ -60,6 +69,7 @@ class Character(models.Model):
     eye_color = models.CharField(max_length=255, blank=True, null=True)
     height = models.IntegerField(blank=True, null=True) #inches
     injury_status = models.CharField(max_length=255, blank=True, null=True)
+    fav_color = models.CharField(max_length=7, validators=[validate_hex_color])
 
     #Skool
     job = models.CharField(max_length=255)
@@ -79,7 +89,7 @@ class Character(models.Model):
     notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.first_name} {self.last_name}"
 
 class Grade(models.Model):
     grade = models.IntegerField(blank=True, null=True)
