@@ -82,10 +82,10 @@ WSGI_APPLICATION = 'designer_baby.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': "freezer",
+        'NAME': "dduhqs61dl8qbi",
         'USER': LOCAL_DB_USER,
         'PASSWORD': LOCAL_DB_PW,
-        'HOST': "localhost",
+        'HOST': "cbgm3648033tc7.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com",
         'PORT': "5432"
     }
 }

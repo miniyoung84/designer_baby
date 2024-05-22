@@ -8,24 +8,25 @@ import os
 from typing import List, Optional
 from dotenv import load_dotenv
 
-import psycopg2.pool
+import psycopg_pool
 import discord
 from discord.ext.commands import Context
 from discord.ext import commands
 from aiohttp import ClientSession
+from decouple import config
 
 
 class CustomBot(commands.Bot):
     def __init__(
         self,
         *args,
-        # db_pool: psycopg2.pool.AbstractConnectionPool,
+        db_pool: psycopg_pool.AsyncConnectionPool,
         web_client: ClientSession,
         testing_guild_id: Optional[int] = None,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
-        # self.db_pool = db_pool
+        self.db_pool = db_pool
         self.web_client = web_client
         self.testing_guild_id = testing_guild_id
 
@@ -54,6 +55,9 @@ class CustomBot(commands.Bot):
         # This would also be a good place to connect to our database and
         # load anything that should be in memory prior to handling events.
 
+        async with self.db_pool.connection() as conn:
+            self.cursor = conn.cursor()
+
     async def get_context(self, message, *, cls=Context):
         return await super().get_context(message, cls=cls)
 
@@ -66,8 +70,8 @@ async def main():
 
     # Setup the bot and db stuff
     load_dotenv()
-    DATABASE_URL = os.getenv('DATABASE_URL', '')
-    TEST_GUILD = os.getenv('TEST_GUILD', '')
+    DATABASE_URL = config('DATABASE_URL', '')
+    TEST_GUILD = config('TEST_GUILD', '')
 
     # When taking over how the bot process is run, you become responsible for a few additional things.
 
@@ -100,11 +104,11 @@ async def main():
     # Here we have a web client and a database pool, both of which do cleanup at exit.
     # We also have our bot, which depends on both of these.
 
-    async with ClientSession() as our_client: #, psycopg2.pool.ThreadedConnectionPool(1, 4, dsn=DATABASE_URL, sslmode='require') as pool:
+    async with ClientSession() as our_client, psycopg_pool.AsyncConnectionPool(conninfo=DATABASE_URL) as pool:
         # 2. We become responsible for starting the bot.
-        async with CustomBot(commands.when_mentioned, web_client=our_client, intents=discord.Intents.default(), testing_guild_id=TEST_GUILD) as bot: # 2nd param db_pool=pool
+        async with CustomBot(commands.when_mentioned, db_pool=pool, web_client=our_client, intents=discord.Intents.default(), testing_guild_id=TEST_GUILD) as bot:
 
-            await bot.start(os.getenv('TOKEN', ''))
+            await bot.start(config('TOKEN', ''))
 
 
 
