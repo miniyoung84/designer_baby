@@ -19,13 +19,13 @@ class CustomBot(commands.Bot):
     def __init__(
         self,
         *args,
-        # db_pool: psycopg2.pool.AbstractConnectionPool,
+        db_pool: psycopg_pool.ConnectionPool,
         web_client: ClientSession,
         testing_guild_id: Optional[int] = None,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
-        # self.db_pool = db_pool
+        self.db_pool = db_pool
         self.web_client = web_client
         self.testing_guild_id = testing_guild_id
 
@@ -100,9 +100,9 @@ async def main():
     # Here we have a web client and a database pool, both of which do cleanup at exit.
     # We also have our bot, which depends on both of these.
 
-    async with ClientSession() as our_client: #, psycopg2.pool.ThreadedConnectionPool(1, 4, dsn=DATABASE_URL, sslmode='require') as pool:
+    async with ClientSession() as our_client, psycopg_pool.AsyncConnectionPool(1, 4, dsn=DATABASE_URL, sslmode='require') as pool:
         # 2. We become responsible for starting the bot.
-        async with CustomBot(commands.when_mentioned, web_client=our_client, intents=discord.Intents.default(), testing_guild_id=TEST_GUILD) as bot: # 2nd param db_pool=pool
+        async with CustomBot(commands.when_mentioned, db_pool=pool, web_client=our_client, intents=discord.Intents.default(), testing_guild_id=TEST_GUILD) as bot:
 
             await bot.start(os.getenv('TOKEN', ''))
 
