@@ -8,7 +8,7 @@ import os
 from typing import List, Optional
 from dotenv import load_dotenv
 
-import psycopg.pool
+import psycopg_pool
 import discord
 from discord.ext.commands import Context
 from discord.ext import commands
