@@ -52,7 +52,7 @@ async def setup(bot):
     await bot.add_cog(ReportCardCog(bot))
 
 
-class SelectCharacterView(discord.ui.View):
+class SelectCharacterView(View):
     def __init__(self, characterList: list):
         @discord.ui.select( # the decorator that lets you specify the properties of the select menu
             placeholder = "Select a character", # the placeholder text that will be displayed if nothing is selected
