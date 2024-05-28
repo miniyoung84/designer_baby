@@ -29,30 +29,33 @@ class ReportCardCog(commands.Cog):
             await ctx.send('This Cog is disabled')
         return IS_ENABLED
 
-    async def get_grade(self, character: str, subject: str) -> str:
-        """Pull grade from database"""
-        return grades[raw_grade]
-
-    async def build_embed(self, character: str, subjects: list) -> Embed:
+    async def build_embed(self, character: str, subjects: list, grades: list) -> Embed:
         description = ""
+        grade_iter = 0
         for subject in subjects:
-            grade = self.get_grade(character=character, subject=subject)
-            description += (subject + ": " + grade + "\n")
-        return Embed(title=subject, description=description).set_author(name=character)
+            grade = grades[grade_iter]
+            description += (subject + ": " + str(grade) + "\n")
+            grade_iter += 1
+        return Embed(title="Report Card", description=description).set_author(name=character)
 
     @app_commands.command()
     async def report(self, ctx, character: str):
         # Get the 10 best subjects from the db
-        await self.bot.cursor.execute("SELECT * FROM characters LIMIT 10")
-        print(await self.bot.cursor.fetchone())
-        embed = self.build_embed(character=character, subjects=subjects)
+        await self.bot.cursor.execute("""SELECT rc.first_name, rc.last_name, rs.name, rg.grade 
+            FROM ramen_grade rg 
+            JOIN ramen_character rc ON rg.student_id = rc.id
+            JOIN ramen_subject rs ON rg.subject_id = rs.id
+            WHERE rc.first_name LIKE %s OR rc.last_name LIKE %s OR rc.nick_name LIKE %s;
+        """, (character, character, character))
+        rows = await self.bot.cursor.fetchall()
+        embed = await self.build_embed(character=character, subjects=[row[2] for row in rows], grades=[row[3] for row in rows])
         await ctx.response.send_message(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(ReportCardCog(bot))
 
 
-class SelectCharacterView(discord.ui.View):
+class SelectCharacterView(View):
     def __init__(self, characterList: list):
         @discord.ui.select( # the decorator that lets you specify the properties of the select menu
             placeholder = "Select a character", # the placeholder text that will be displayed if nothing is selected
