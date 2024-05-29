@@ -20,9 +20,9 @@ class CommsCog(commands.Cog):
         print("message", message.content)
         channel_id = message.channel.id
         print("hi")
-        await self.bot.cursor.execute("""SELECT dc.id, dc.discord_id 
+        await self.bot.cursor.execute("""SELECT dc.id 
         FROM bakery_discordchannel dc 
-        JOIN ramen_player rp on dc.discord_id = rp.discord_channel_id
+        JOIN ramen_player rp on dc.id = rp.channel_id
         WHERE dc.discord_id = %s;
         """, (channel_id,))
         print("oof")
