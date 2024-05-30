@@ -53,6 +53,7 @@ class ReportCardCog(commands.Cog):
     @app_commands.command()
     async def report(self, ctx, character: str):
         # Get the 10 best subjects from the db
+        character = character.capitalize()
         await self.bot.cursor.execute("""SELECT rc.first_name, rc.nick_name, rc.last_name, rc.fav_color, rs.name, rg.grade 
             FROM ramen_grade rg 
             JOIN ramen_character rc ON rg.student_id = rc.id
@@ -60,6 +61,7 @@ class ReportCardCog(commands.Cog):
             WHERE rc.first_name LIKE %s OR rc.last_name LIKE %s OR rc.nick_name LIKE %s;
         """, (character, character, character))
         rows = await self.bot.cursor.fetchall()
+        print("rows", rows, character)
         first_name = rows[0][0] if rows[0][0] else ''
         nick_name = '"' + rows[0][1] + '"' if rows[0][1] else ''
         last_name = rows[0][2] if rows[0][2] else ''

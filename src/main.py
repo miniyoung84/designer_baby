@@ -103,10 +103,12 @@ async def main():
 
     # Here we have a web client and a database pool, both of which do cleanup at exit.
     # We also have our bot, which depends on both of these.
-
+    
+    intents = discord.Intents.default()
+    intents.message_content = True
     async with ClientSession() as our_client, psycopg_pool.AsyncConnectionPool(conninfo=DATABASE_URL) as pool:
         # 2. We become responsible for starting the bot.
-        async with CustomBot(commands.when_mentioned, db_pool=pool, web_client=our_client, intents=discord.Intents.default(), testing_guild_id=TEST_GUILD) as bot:
+        async with CustomBot(commands.when_mentioned, db_pool=pool, web_client=our_client, intents=intents, testing_guild_id=TEST_GUILD) as bot:
 
             await bot.start(config('TOKEN', ''))
 
