@@ -162,3 +162,5 @@ cython_debug/
 *Zone.Identifier
 Pipfile
 Pipfile.lock
+
+discord.log

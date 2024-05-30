@@ -39,7 +39,8 @@ class CommsCog(commands.Cog):
         if is_ping and in_ic_channel:
 
             async for msg in message.channel.history(limit=5):   # Cleanup on leftover pings
-                if myid in msg.content or msg.content.lower() in ["ping", "p"]:
+                if myid in msg.content or msg.content.lower() in ["p", "ping", ";p", "mp", "mping", ";mp",
+                                                                  "aa", ";a", "maa", ";ma"]:
                     await msg.delete()
             
             if mod_ping:
