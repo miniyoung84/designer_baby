@@ -13,8 +13,78 @@ class CommsCog(commands.Cog):
             await ctx.send('This Cog is disabled')
         return IS_ENABLED
     
+    @app_commands.command()
+    async def ping(self, ctx, player: int):
+        try:
+            pid = '<@&1240595913261711391>'
+            myid = '<@&662827894560784419>'
+            async for msg in ctx.channel.history(limit=5):   # Cleanup on leftover pings
+                if myid in msg.content or pid in msg.content \
+                or msg.content.lower() in ["p", "ping", ";p", "mp", "mping", ";mp",
+                                           "aa", ";a", "maa", ";ma"]:
+                    await msg.delete()
+
+            await self.bot.cursor.execute("""SELECT du.discord_id 
+            FROM bakery_discorduser du
+            JOIN ramen_player rp on du.id = rp.discord_user_id
+            WHERE rp.id = %s;
+            """, (player,))
+            tag_id = await self.bot.cursor.fetchone()
+            tag_id = tag_id[0]
+
+            await self.bot.cursor.execute("""SELECT rc.first_name, rc.last_name, rc.nick_name 
+            FROM bakery_discorduser du
+            JOIN ramen_player rp on du.id = rp.discord_user_id
+            JOIN ramen_character rc on rc.player_id = rp.id                              
+            WHERE du.discord_id = %s;
+            """, (ctx.user.id,))
+            name = await self.bot.cursor.fetchone()
+            if ctx.user.id == 294867951855599618:
+                await ctx.response.send_message(f"[Awaiting Player: <@{tag_id}>]")
+                return
+            name = f"{name[0]} {name[1]}" if name[0] else name[1]
+            await ctx.response.send_message(f"[Turn Ended by {name} | Ping: <@{tag_id}>]")
+            return   
+        except Exception as e:
+            print(str(e)) 
+
+    @app_commands.command()
+    async def mping(self, ctx, player: int):
+        try:
+            pid = '<@&1240595913261711391>'
+            myid = '<@&662827894560784419>'
+            async for msg in ctx.channel.history(limit=5):   # Cleanup on leftover pings
+                if myid in msg.content or pid in msg.content \
+                or msg.content.lower() in ["p", "ping", ";p", "mp", "mping", ";mp",
+                                           "aa", ";a", "maa", ";ma"]:
+                    await msg.delete()
+
+            await self.bot.cursor.execute("""SELECT du.discord_id 
+            FROM bakery_discorduser du
+            JOIN ramen_player rp on du.id = rp.discord_user_id
+            WHERE rp.id = %s;
+            """, (player,))
+            tag_id = await self.bot.cursor.fetchone()
+            tag_id = tag_id[0]
+
+            await self.bot.cursor.execute("""SELECT rc.first_name, rc.last_name, rc.nick_name 
+            FROM bakery_discorduser du
+            JOIN ramen_player rp on du.id = rp.discord_user_id
+            JOIN ramen_character rc on rc.player_id = rp.id                              
+            WHERE du.discord_id = %s;
+            """, (ctx.user.id,))
+            name = await self.bot.cursor.fetchone()
+            if ctx.user.id == 294867951855599618:
+                await ctx.response.send_message(f"[Awaiting IMPORTANT Response: <@{tag_id}>]")
+                return
+            name = f"{name[0]} {name[1]}" if name[0] else name[1]
+            await ctx.response.send_message(f"[Turn Ended by {name} | IMPORTANT: <@{tag_id}>]")
+            return   
+        except Exception as e:
+            print(str(e)) 
+    
     @Cog.listener("on_message")
-    async def ping(self, message):
+    async def auto_ping(self, message):
 
         if message.author == self.bot.user:
             return
@@ -67,8 +137,10 @@ class CommsCog(commands.Cog):
                     await message.channel.send(f"[Awaiting Player... | {pid}]")
         if not is_ping and in_ic_channel:
             async for msg in message.channel.history(limit=5):   # Cleanup on leftover pings
-                if myid in msg.content or pid in msg.content or msg.content.lower() in ["p", "ping", ";p", "mp", "mping", ";mp",
-                                                                                        "aa", ";a", "maa", ";ma"]:
+                if myid in msg.content or pid in msg.content or \
+                    "Awaiting Player:" in msg.content or "Turn Ended by" in msg.content or\
+                msg.content.lower() in ["p", "ping", ";p", "mp", "mping", ";mp",
+                                        "aa", ";a", "maa", ";ma"]:
                     await msg.delete()
 
         await self.bot.process_commands(message)
