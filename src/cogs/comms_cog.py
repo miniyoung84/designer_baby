@@ -7,6 +7,9 @@ IS_ENABLED = True
 class CommsCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.pid = '<@&1240595913261711391>'
+        self.myid = '<@&662827894560784419>'
+        self.moderator_id = 294867951855599618
 
     async def cog_check(self, ctx: Context):
         if (not IS_ENABLED):
@@ -16,10 +19,8 @@ class CommsCog(commands.Cog):
     @app_commands.command()
     async def ping(self, ctx, player: int):
         try:
-            pid = '<@&1240595913261711391>'
-            myid = '<@&662827894560784419>'
             async for msg in ctx.channel.history(limit=5):   # Cleanup on leftover pings
-                if myid in msg.content or pid in msg.content \
+                if self.myid in msg.content or self.pid in msg.content \
                 or msg.content.lower() in ["p", "ping", ";p", "mp", "mping", ";mp",
                                            "aa", ";a", "maa", ";ma"]:
                     await msg.delete()
@@ -39,7 +40,7 @@ class CommsCog(commands.Cog):
             WHERE du.discord_id = %s;
             """, (ctx.user.id,))
             name = await self.bot.cursor.fetchone()
-            if ctx.user.id == 294867951855599618:
+            if ctx.user.id == self.moderator_id:
                 await ctx.response.send_message(f"[Awaiting Player: <@{tag_id}>]")
                 return
             name = f"{name[0]} {name[1]}" if name[0] else name[1]
@@ -51,10 +52,8 @@ class CommsCog(commands.Cog):
     @app_commands.command()
     async def mping(self, ctx, player: int):
         try:
-            pid = '<@&1240595913261711391>'
-            myid = '<@&662827894560784419>'
             async for msg in ctx.channel.history(limit=5):   # Cleanup on leftover pings
-                if myid in msg.content or pid in msg.content \
+                if self.myid in msg.content or self.pid in msg.content \
                 or msg.content.lower() in ["p", "ping", ";p", "mp", "mping", ";mp",
                                            "aa", ";a", "maa", ";ma"]:
                     await msg.delete()
@@ -88,8 +87,6 @@ class CommsCog(commands.Cog):
 
         if message.author == self.bot.user:
             return
-        pid = '<@&1240595913261711391>'
-        myid = '<@&662827894560784419>'
 
         channel_id = message.channel.id
         await self.bot.cursor.execute("""SELECT dc.id 
@@ -109,7 +106,7 @@ class CommsCog(commands.Cog):
         if is_ping and in_ic_channel:
 
             async for msg in message.channel.history(limit=5):   # Cleanup on leftover pings
-                if myid in msg.content or msg.content.lower() in ["p", "ping", ";p", "mp", "mping", ";mp",
+                if self.myid in msg.content or msg.content.lower() in ["p", "ping", ";p", "mp", "mping", ";mp",
                                                                   "aa", ";a", "maa", ";ma"]:
                     await msg.delete()
             
@@ -122,22 +119,22 @@ class CommsCog(commands.Cog):
                 """, (message.author.id,))
                 name = await self.bot.cursor.fetchone()
                 if not name:
-                    await message.channel.send(f"[Please Wait for {myid}...]")
+                    await message.channel.send(f"[Please Wait for {self.myid}...]")
                     return
                 name = f"{name[0]} {name[1]}" if name[0] else name[1]
                 if "m" in ci_msg_content:
-                    await message.channel.send(f"[Turn Ended by {name}, IMPORTANT RESPONSE | {myid}]")
+                    await message.channel.send(f"[Turn Ended by {name}, IMPORTANT RESPONSE | {self.myid}]")
                 else:
-                    await message.channel.send(f"[Turn Ended by {name} | {myid}]")
+                    await message.channel.send(f"[Turn Ended by {name} | {self.myid}]")
                 return 
             elif player_ping:
                 if "m" in ci_msg_content:
-                    await message.channel.send(f"[IMPORTANT TURN. Awaiting Player... | {pid}]")
+                    await message.channel.send(f"[IMPORTANT TURN. Awaiting Player... | {self.pid}]")
                 else:
-                    await message.channel.send(f"[Awaiting Player... | {pid}]")
+                    await message.channel.send(f"[Awaiting Player... | {self.pid}]")
         if not is_ping and in_ic_channel:
             async for msg in message.channel.history(limit=5):   # Cleanup on leftover pings
-                if myid in msg.content or pid in msg.content or \
+                if self.myid in msg.content or self.pid in msg.content or \
                     "Awaiting Player:" in msg.content or "Turn Ended by" in msg.content or\
                 msg.content.lower() in ["p", "ping", ";p", "mp", "mping", ";mp",
                                         "aa", ";a", "maa", ";ma"]:
