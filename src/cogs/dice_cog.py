@@ -2,7 +2,7 @@ from discord import Interaction, Embed, app_commands
 from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ui import View
-from typing import Optional
+from typing import Optional, Tuple
 from random import randint
 from enum import Enum, auto
 
@@ -36,9 +36,12 @@ class DiceCog(commands.Cog):
             await ctx.send('This Cog is disabled')
         return IS_ENABLED
 
-    def parse_dice_notation(self, notation: str):
-        number_of_dice, die_faces = map(int, notation.split('d'))
-        return number_of_dice, die_faces
+    def parse_dice_notation(self, notation: str) -> Optional[Tuple[int, int]]:
+        try:
+            number_of_dice, die_faces = map(int, notation.split('d'))
+            return number_of_dice, die_faces
+        except ValueError:
+            return None
 
     def build_help_embed(self) -> Embed:
         help_string = (
@@ -100,9 +103,13 @@ class DiceCog(commands.Cog):
             await ctx.response.send_message(embed=self.build_help_embed())
             return
 
-        number_of_dice, die_faces = self.parse_dice_notation(notation)
-        minimum_roll = number_of_dice
-        maximum_roll = number_of_dice * die_faces
+        dice_notation = self.parse_dice_notation(notation)
+        if dice_notation is None:
+            await ctx.response.send_message('Invalid dice notation. Please use the format NdM.')
+            return
+
+        number_of_dice, die_faces = dice_notation
+
         capped_leniency = min(leniency, 1.0)
 
         if (number_of_dice > 100 or number_of_dice < 1):
@@ -118,6 +125,8 @@ class DiceCog(commands.Cog):
             await ctx.response.send_message(embed=self.build_roll_embed(random_roll_total, notation, None, 0.0, None))
             return
 
+        minimum_roll = number_of_dice
+        maximum_roll = number_of_dice * die_faces
         if (target < minimum_roll or target > maximum_roll):
             await ctx.response.send_message('Please choose a valid target.')
             return
