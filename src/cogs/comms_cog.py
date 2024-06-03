@@ -85,9 +85,6 @@ class CommsCog(commands.Cog):
     @Cog.listener("on_message")
     async def auto_ping(self, message):
 
-        if message.author == self.bot.user:
-            return
-
         channel_id = message.channel.id
         await self.bot.cursor.execute("""SELECT dc.id 
         FROM bakery_discordchannel dc 
@@ -99,7 +96,16 @@ class CommsCog(commands.Cog):
         pings = ["p", "ping", ";p", "mp", "mping", ";mp"]
         mod_ping = ci_msg_content in pings
         player_ping = ci_msg_content in ["aa", ";a", "maa", ";ma"]
+        the_ping = "awaiting player" in ci_msg_content or "turn ended by" in ci_msg_content or "has been pinged" in ci_msg_content
         is_ping = mod_ping or player_ping
+        if not is_ping and in_ic_channel:
+            async for msg in message.channel.history(limit=5):   # Cleanup on leftover pings
+                if self.myid in msg.content or self.pid in msg.content or \
+                    "Awaiting Player" in msg.content or "Turn Ended by" in msg.content or\
+                msg.content.lower() in ["p", "ping", ";p", "mp", "mping", ";mp",
+                                        "aa", ";a", "maa", ";ma"]:
+                    if not the_ping:
+                        await msg.delete()
         if is_ping and not in_ic_channel:
             await message.channel.send("Ice Cream Channels Only!")
             return
@@ -119,7 +125,7 @@ class CommsCog(commands.Cog):
                 """, (message.author.id,))
                 name = await self.bot.cursor.fetchone()
                 if not name:
-                    await message.channel.send(f"[Please Wait for {self.myid}...]")
+                    await message.channel.send(f"[{self.myid} has been pinged]")
                     return
                 name = f"{name[0]} {name[1]}" if name[0] else name[1]
                 if "m" in ci_msg_content:
@@ -132,13 +138,7 @@ class CommsCog(commands.Cog):
                     await message.channel.send(f"[IMPORTANT TURN. Awaiting Player... | {self.pid}]")
                 else:
                     await message.channel.send(f"[Awaiting Player... | {self.pid}]")
-        if not is_ping and in_ic_channel:
-            async for msg in message.channel.history(limit=5):   # Cleanup on leftover pings
-                if self.myid in msg.content or self.pid in msg.content or \
-                    "Awaiting Player:" in msg.content or "Turn Ended by" in msg.content or\
-                msg.content.lower() in ["p", "ping", ";p", "mp", "mping", ";mp",
-                                        "aa", ";a", "maa", ";ma"]:
-                    await msg.delete()
+        
 
         await self.bot.process_commands(message)
 

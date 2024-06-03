@@ -54,8 +54,8 @@ class CustomBot(commands.Bot):
 
         # This would also be a good place to connect to our database and
         # load anything that should be in memory prior to handling events.
-
         async with self.db_pool.connection() as conn:
+            self.db_conn = conn
             self.cursor = conn.cursor()
 
     async def get_context(self, message, *, cls=Context):
