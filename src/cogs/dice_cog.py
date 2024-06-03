@@ -9,13 +9,13 @@ from enum import Enum, auto
 IS_ENABLED = True
 
 class Outcome(Enum):
-    CRITICAL_FAILURE = auto()
-    FAILURE = auto()
-    PARTIAL_SUCCESS = auto()
-    SUCCESS = auto()
-    GREATER_SUCCESS = auto()
-    CRITICAL_SUCCESS = auto()
-    INVALID_ROLL_PING_MODERATOR = auto()
+    CRITICAL_FAILURE = 'CRITICAL FAILURE'
+    FAILURE = 'FAILURE'
+    PARTIAL_SUCCESS = 'PARTIAL SUCCESS'
+    SUCCESS = 'SUCCESS'
+    GREATER_SUCCESS = 'GREATER SUCCESS'
+    CRITICAL_SUCCESS = 'CRITICAL SUCCESS'
+    INVALID_ROLL_PING_MODERATOR = 'INVALID ROLL, PING MODERATOR'
 
 OUTCOME_COLORS = {
     Outcome.CRITICAL_FAILURE: '#FF0000',  # Red
@@ -59,16 +59,16 @@ class DiceCog(commands.Cog):
 
     def build_roll_embed(self, roll: int, notation: str, target: Optional[int] = None, leniency: float = 0.0, outcome: Outcome = None) -> Embed:
         description = (
-            (f'Target: {target}\n' if target is not None else '') +
-            (f'Leniency: {leniency}\n\n' if leniency else '') +
-            (f'You have rolled a {roll}!\n\n') +
-            (f'Outcome: {outcome.name}\n' if outcome else '')
+            (f'**{notation}**\n') +   
+            (f'Leniency: {leniency}\n' if leniency else '') +         
+            (f'Target: {target}\n\n' if target is not None else '') +
+            (f'You have rolled **{roll}**!')
         )
 
         hex_color = OUTCOME_COLORS.get(outcome, "#000000")
         color = int(hex_color.lstrip('#'), 16)
 
-        return Embed(title=notation, description=description, color=color)
+        return Embed(title=outcome.value if outcome else notation, description=description, color=color)
 
     def determine_outcome(self, roll: int, notation: str, target: Optional[int] = None, leniency: float = 0.0) -> Outcome:
         number_of_dice, die_faces = self.parse_dice_notation(notation)
