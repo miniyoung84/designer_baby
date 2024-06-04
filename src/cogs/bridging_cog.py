@@ -14,6 +14,23 @@ class BridgingCog(commands.Cog):
         if (not IS_ENABLED):
             await ctx.send('This Cog is disabled')
         return IS_ENABLED
+    
+    @app_commands.command()
+    async def party(self, ctx: Interaction):
+        await self.bot.cursor.execute("""SELECT rpc.to_player_id
+            FROM ramen_player_connections rpc
+            JOIN ramen_player rp on rpc.from_player_id = rp.id
+            JOIN bakery_discordchannel dc on dc.id = rp.channel_id
+            WHERE dc.discord_id = %s;
+            """, (ctx.channel.id,))
+        connections = await self.bot.cursor.fetchall()
+        player_ids = [player[0] for player in connections]
+        if player_ids:
+            for player_id in player_ids:
+                player_names_str = ', '.join(str(player_id))
+            await ctx.response.send_message(f"Connected with Players: {player_names_str}")
+        else:
+            await ctx.response.send_message("No Active Connections Detected")
 
     @Cog.listener("on_message")
     async def message_forward(self, message):
@@ -91,7 +108,7 @@ class BridgingCog(commands.Cog):
 
         await self.bot.cursor.execute("""SELECT id FROM ramen_player_connections rpc ORDER BY id DESC;""")
         id_amount = await self.bot.cursor.fetchone()
-        id_amount = id_amount[0]
+        id_amount = id_amount[0] if id_amount else 0
 
         for player1 in first_players:
             for player2 in second_players:
