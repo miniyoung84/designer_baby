@@ -121,7 +121,7 @@ class DiceCog(commands.Cog):
         else:
             failure_upper_threshold = target - (target - number_of_dice) * leniency
             partial_success_upper_threshold = target
-            normal_success_upper_threshold = target + (maximum_roll - target) * leniency
+            greater_success_lower_threshold = maximum_roll - (maximum_roll - target) * leniency
             greater_success_upper_threshold = maximum_roll
 
             outcomes = {
@@ -142,7 +142,7 @@ class DiceCog(commands.Cog):
                     outcomes[Outcome.FAILURE] += probability
                 elif value < partial_success_upper_threshold:
                     outcomes[Outcome.PARTIAL_SUCCESS] += probability
-                elif value < normal_success_upper_threshold:
+                elif value < greater_success_lower_threshold:
                     outcomes[Outcome.SUCCESS] += probability
                 elif value < greater_success_upper_threshold:
                     outcomes[Outcome.GREATER_SUCCESS] += probability
@@ -151,6 +151,7 @@ class DiceCog(commands.Cog):
         description = '\n'.join(f'`{outcome.value:<15}: {probability * 100:>7.2f}%`' for outcome, probability in outcomes.items())
         embed.add_field(name='Probabilities', value=description, inline=False)
         return embed
+
 
     def parse_dice_notation(self, notation: str) -> Optional[Tuple[int, int]]:
         try:
@@ -193,9 +194,8 @@ class DiceCog(commands.Cog):
 
         critical_failure_value = minimum_roll
         failure_upper_threshold = target - (target - number_of_dice) * leniency
-        partial_success_upper_threshold = target
-        normal_success_upper_threshold = target + (maximum_roll - target) * leniency
-        greater_success_upper_threshold = maximum_roll
+        normal_success_upper_threshold = target
+        greater_success_lower_threshold = maximum_roll - (maximum_roll - target) * leniency
         critical_success_value = maximum_roll
 
         if leniency == 0.0:
@@ -210,20 +210,15 @@ class DiceCog(commands.Cog):
             else:
                 return Outcome.INVALID_ROLL_PING_MODERATOR
         else:
-            partial_success_upper_threshold = target + (maximum_roll - target) * leniency
-            greater_success_upper_threshold = maximum_roll - 1
-
             if roll == critical_success_value:
                 return Outcome.CRITICAL_SUCCESS
             elif roll == critical_failure_value:
                 return Outcome.CRITICAL_FAILURE
             elif roll < failure_upper_threshold:
                 return Outcome.FAILURE
-            elif roll < partial_success_upper_threshold:
-                return Outcome.PARTIAL_SUCCESS
             elif roll < normal_success_upper_threshold:
                 return Outcome.SUCCESS
-            elif roll < greater_success_upper_threshold:
+            elif roll >= greater_success_lower_threshold:
                 return Outcome.GREATER_SUCCESS
             else:
                 return Outcome.INVALID_ROLL_PING_MODERATOR
