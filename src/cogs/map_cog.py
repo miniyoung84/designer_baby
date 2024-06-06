@@ -15,12 +15,14 @@ class MapCog(commands.Cog):
 
     @app_commands.command()
     async def map(self, ctx, map_type: str):
-        region=str(region)
+        region=str(map_type)
         region=region.upper()
         if region=="KURU":
-            await ctx.send(file=File("./assets/images/Kuru.JPG"))
+            await ctx.response.send_message(file=File("./assets/images/Kuru.JPG"))
+        elif region=="MARS":
+            await ctx.response.send_message(file=File("./assets/images/Mars2.png"))
         else:
-            await ctx.send(file=File("./assets/images/Mars2.png"))
+            await ctx.response.send_message(file=File("./assets/images/athena_university.png"))
 
 async def setup(bot):
     await bot.add_cog(MapCog(bot))
