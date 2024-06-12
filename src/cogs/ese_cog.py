@@ -15,7 +15,7 @@ class ESECog(commands.Cog):
         return IS_ENABLED
 
     @app_commands.command()
-    @commands.has_role("IC6 Moderator")
+    @app_commands.checks.has_role("IC6 Moderator")
     async def ese(self, ctx: Interaction, amount: int):
 
         await self.bot.cursor.execute("""SELECT rp.id, rp.ese
