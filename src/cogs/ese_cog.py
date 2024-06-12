@@ -15,36 +15,40 @@ class ESECog(commands.Cog):
         return IS_ENABLED
 
     @app_commands.command()
-    @commands.has_role("IC6 Moderator")
+    @app_commands.checks.has_role("IC6 Moderator")
     async def ese(self, ctx: Interaction, amount: int):
-
-        await self.bot.cursor.execute("""SELECT rp.id, rp.ese
+        query1 = """SELECT rp.id, rp.ese
             FROM ramen_player rp
             JOIN bakery_discordchannel dc on dc.id = rp.channel_id
             WHERE dc.discord_id = %s;
-            """, (ctx.channel.id,))
-        return_value = await self.bot.cursor.fetchone()
+        """
+        params1 = (ctx.channel.id,)
+        return_value = await self.bot.db_manager.execute_with_retries(query1, params1)
 
         player_id = return_value[0]
         ese_value = return_value[1]
+        new_ese_value = ese_value + amount
 
-        await self.bot.cursor.execute("""UPDATE ramen_player
+        query2 = """UPDATE ramen_player
             SET ese = %s
             WHERE id = %s;
-            """, (ese_value + amount, player_id))
-        await ctx.channel.send('ESE has been updated to ' + str(ese_value + amount))
-        await self.bot.db_conn.commit()
+        """
+        params2 = (new_ese_value, player_id)
+
+        await self.bot.db_manager.execute_with_retries(query2, params2)
+        await ctx.channel.send('ESE has been updated to ' + str(new_ese_value))
+        await self.bot.db_manager.commit()
         await ctx.response.send_message('Update Successful')
 
     @app_commands.command()
     async def my_ese(self, ctx: Interaction):
-
-        await self.bot.cursor.execute("""SELECT rp.ese
+        query = """SELECT rp.ese
             FROM ramen_player rp
             JOIN bakery_discordchannel dc on dc.id = rp.channel_id
             WHERE dc.discord_id = %s;
-            """, (ctx.channel.id,))
-        return_value = await self.bot.cursor.fetchone()
+        """
+        params = (ctx.channel.id,)
+        return_value = await self.bot.db_manager.execute_with_retries(query, params)
 
         await ctx.response.send_message('You have ' + str(return_value[0]) + ' ESE value')
 

@@ -55,8 +55,7 @@ class CharacterCog(commands.Cog):
     async def char(self, ctx, character: str):
         # Get the 10 best subjects from the db
         character = character.capitalize()
-        await self.bot.cursor.execute(
-        """
+        query = """
             SELECT rc.first_name, rc.nick_name, rc.last_name, rc.pronouns, 
             rc.fav_color, rc.age, rc.birthday, rc.height, rc.job, rc.year, rc.mutations,
             rc.pet, major.name, minor.name, rc.primary_weapon, rc.secondary_weapon, dorm.name
@@ -65,13 +64,15 @@ class CharacterCog(commands.Cog):
             JOIN ramen_subject minor on rc.minor_id = minor.id
             JOIN ramen_dorm dorm on rc.dorm_id = dorm.id
             WHERE rc.first_name LIKE %s OR rc.last_name LIKE %s OR rc.nick_name LIKE %s;
-        """, (character, character, character))
-        rows = await self.bot.cursor.fetchall()
+        """
+        params = (character, character, character)
+        rows = await self.bot.db_manager.execute_with_retries(query, params)
+
         for row in rows:
-            first_name = row[0] if row[0] else ''
-            nick_name = '"' + row[1] + '"' if row[1] else ''
-            last_name = row[2] if row[2] else ''
-            full_name = first_name + ' ' + nick_name + ' ' + last_name
+            first_name = rows[0][0] if rows[0][0] else ''
+            nick_name = f'"{rows[0][1]}"' if rows[0][1] else ''
+            last_name = rows[0][2] if rows[0][2] else ''
+            full_character = ' '.join(part for part in [first_name, nick_name, last_name] if part)
             height = await self.convert_height(row[7])
             birthday = await self.convert_date(str(row[6])[5:])
             year = self.status_names[int(row[9]) - 1] if row[9] else "Non-Student"

@@ -25,21 +25,19 @@ class CommsCog(commands.Cog):
                                            "aa", ";a", "maa", ";ma"]:
                     await msg.delete()
 
-            await self.bot.cursor.execute("""SELECT du.discord_id 
-            FROM bakery_discorduser du
-            JOIN ramen_player rp on du.id = rp.discord_user_id
-            WHERE rp.id = %s;
+            tag_id = await self.bot.db_manager.execute_with_retries("""SELECT du.discord_id 
+                FROM bakery_discorduser du
+                JOIN ramen_player rp on du.id = rp.discord_user_id
+                WHERE rp.id = %s;
             """, (player,))
-            tag_id = await self.bot.cursor.fetchone()
             tag_id = tag_id[0]
 
-            await self.bot.cursor.execute("""SELECT rc.first_name, rc.last_name, rc.nick_name 
-            FROM bakery_discorduser du
-            JOIN ramen_player rp on du.id = rp.discord_user_id
-            JOIN ramen_character rc on rc.player_id = rp.id                              
-            WHERE du.discord_id = %s;
+            name = await self.bot.db_manager.execute_with_retries("""SELECT rc.first_name, rc.last_name, rc.nick_name 
+                FROM bakery_discorduser du
+                JOIN ramen_player rp on du.id = rp.discord_user_id
+                JOIN ramen_character rc on rc.player_id = rp.id                              
+                WHERE du.discord_id = %s;
             """, (ctx.user.id,))
-            name = await self.bot.cursor.fetchone()
             if ctx.user.id == self.moderator_id:
                 await ctx.response.send_message(f"[Awaiting Player: <@{tag_id}>]")
                 return
@@ -58,27 +56,28 @@ class CommsCog(commands.Cog):
                                            "aa", ";a", "maa", ";ma"]:
                     await msg.delete()
 
-            await self.bot.cursor.execute("""SELECT du.discord_id 
-            FROM bakery_discorduser du
-            JOIN ramen_player rp on du.id = rp.discord_user_id
-            WHERE rp.id = %s;
+            tag_id = await self.bot.db_manager.execute_with_retries("""SELECT du.discord_id 
+                FROM bakery_discorduser du
+                JOIN ramen_player rp on du.id = rp.discord_user_id
+                WHERE rp.id = %s;
             """, (player,))
-            tag_id = await self.bot.cursor.fetchone()
             tag_id = tag_id[0]
 
-            await self.bot.cursor.execute("""SELECT rc.first_name, rc.last_name, rc.nick_name 
-            FROM bakery_discorduser du
-            JOIN ramen_player rp on du.id = rp.discord_user_id
-            JOIN ramen_character rc on rc.player_id = rp.id                              
-            WHERE du.discord_id = %s;
+            name = await self.bot.db_manager.execute_with_retries("""SELECT rc.first_name, rc.last_name, rc.nick_name 
+                FROM bakery_discorduser du
+                JOIN ramen_player rp on du.id = rp.discord_user_id
+                JOIN ramen_character rc on rc.player_id = rp.id                              
+                WHERE du.discord_id = %s;
             """, (ctx.user.id,))
-            name = await self.bot.cursor.fetchone()
+
             if ctx.user.id == 294867951855599618:
                 await ctx.response.send_message(f"[Awaiting IMPORTANT Response: <@{tag_id}>]")
                 return
+
             name = f"{name[0]} {name[1]}" if name[0] else name[1]
             await ctx.response.send_message(f"[Turn Ended by {name} | IMPORTANT: <@{tag_id}>]")
             return   
+
         except Exception as e:
             print(str(e)) 
     
@@ -86,13 +85,12 @@ class CommsCog(commands.Cog):
     async def auto_ping(self, message):
 
         channel_id = message.channel.id
-        await self.bot.cursor.execute("""SELECT dc.id 
-        FROM bakery_discordchannel dc 
-        JOIN ramen_player rp on dc.id = rp.channel_id
-        WHERE dc.discord_id = %s;
+        in_ic_channel = await self.bot.db_manager.execute_with_retries("""SELECT dc.id 
+            FROM bakery_discordchannel dc 
+            JOIN ramen_player rp on dc.id = rp.channel_id
+            WHERE dc.discord_id = %s;
         """, (channel_id,))
         ci_msg_content = message.content.lower()
-        in_ic_channel = await self.bot.cursor.fetchone()
         pings = ["p", "ping", ";p", "mp", "mping", ";mp"]
         mod_ping = ci_msg_content in pings
         player_ping = ci_msg_content in ["aa", ";a", "maa", ";ma"]
@@ -117,30 +115,33 @@ class CommsCog(commands.Cog):
                     await msg.delete()
             
             if mod_ping:
-                await self.bot.cursor.execute("""SELECT rc.first_name, rc.last_name, rc.nick_name 
-                FROM bakery_discorduser du
-                JOIN ramen_player rp on du.id = rp.discord_user_id
-                JOIN ramen_character rc on rc.player_id = rp.id                              
-                WHERE du.discord_id = %s;
+                name = await self.bot.db_manager.execute_with_retries("""SELECT rc.first_name, rc.last_name, rc.nick_name 
+                    FROM bakery_discorduser du
+                    JOIN ramen_player rp on du.id = rp.discord_user_id
+                    JOIN ramen_character rc on rc.player_id = rp.id                              
+                    WHERE du.discord_id = %s;
                 """, (message.author.id,))
-                name = await self.bot.cursor.fetchone()
+
                 if not name:
                     await message.channel.send(f"[{self.myid} has been pinged]")
                     return
+
                 name = f"{name[0]} {name[1]}" if name[0] else name[1]
+
                 if "m" in ci_msg_content:
                     await message.channel.send(f"[Turn Ended by {name}, IMPORTANT RESPONSE | {self.myid}]")
                 else:
                     await message.channel.send(f"[Turn Ended by {name} | {self.myid}]")
-                return 
+                return
+
             elif player_ping:
                 if "m" in ci_msg_content:
                     await message.channel.send(f"[IMPORTANT TURN. Awaiting Player... | {self.pid}]")
                 else:
                     await message.channel.send(f"[Awaiting Player... | {self.pid}]")
         
-
         await self.bot.process_commands(message)
 
 async def setup(bot):
     await bot.add_cog(CommsCog(bot))
+

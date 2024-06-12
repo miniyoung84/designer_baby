@@ -8,29 +8,28 @@ import os
 from typing import List, Optional
 from dotenv import load_dotenv
 
-import psycopg_pool
 import discord
 from discord.ext.commands import Context
 from discord.ext import commands
 from aiohttp import ClientSession
 from decouple import config
 
+from database_manager import DatabaseManager
+
 
 class CustomBot(commands.Bot):
     def __init__(
         self,
         *args,
-        db_pool: psycopg_pool.AsyncConnectionPool,
+        db_manager: DatabaseManager,
         web_client: ClientSession,
         testing_guild_id: Optional[int] = None,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
-        self.db_pool = db_pool
+        self.db_manager = db_manager
         self.web_client = web_client
         self.testing_guild_id = testing_guild_id
-
-
 
     async def setup_hook(self) -> None:
 
@@ -54,9 +53,7 @@ class CustomBot(commands.Bot):
 
         # This would also be a good place to connect to our database and
         # load anything that should be in memory prior to handling events.
-        async with self.db_pool.connection() as conn:
-            self.db_conn = conn
-            self.cursor = conn.cursor()
+        await self.db_manager.connect()
 
     async def get_context(self, message, *, cls=Context):
         return await super().get_context(message, cls=cls)
@@ -64,6 +61,9 @@ class CustomBot(commands.Bot):
     async def on_ready(self):
         print(f'Logged in as {self.user} (ID: {self.user.id})')
 
+    async def close(self):
+        await super().close()
+        await self.db_manager.close()
 
 
 async def main():
@@ -106,13 +106,9 @@ async def main():
     
     intents = discord.Intents.default()
     intents.message_content = True
-    async with ClientSession() as our_client, psycopg_pool.AsyncConnectionPool(conninfo=DATABASE_URL) as pool:
-        # 2. We become responsible for starting the bot.
-        async with CustomBot(commands.when_mentioned, db_pool=pool, web_client=our_client, intents=intents, testing_guild_id=TEST_GUILD) as bot:
-
+    async with ClientSession() as our_client, DatabaseManager(DATABASE_URL) as db_manager:
+        async with CustomBot(commands.when_mentioned, db_manager=db_manager, web_client=our_client, intents=intents, testing_guild_id=TEST_GUILD) as bot:
             await bot.start(config('TOKEN', ''))
-
-
 
 # For most use cases, after defining what needs to run, we can just tell asyncio to run it:
 asyncio.run(main())
