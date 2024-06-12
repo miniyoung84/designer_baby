@@ -11,12 +11,14 @@ class BridgingCog(commands.Cog):
         self.pid = '<@&1240595913261711391>'
 
     async def cog_check(self, ctx: Context):
+        # Check if the cog is enabled
         if (not IS_ENABLED):
             await ctx.send('This Cog is disabled')
         return IS_ENABLED
     
     @app_commands.command()
     async def party(self, ctx: Interaction):
+        # Retrieve player connections from the database
         await self.bot.cursor.execute("""SELECT rpc.to_player_id
             FROM ramen_player_connections rpc
             JOIN ramen_player rp on rpc.from_player_id = rp.id
@@ -34,7 +36,7 @@ class BridgingCog(commands.Cog):
 
     @Cog.listener("on_message")
     async def message_forward(self, message):
-        
+        # Forward messages to connected players
         if message.author == self.bot.user:
             return
 
@@ -78,7 +80,7 @@ class BridgingCog(commands.Cog):
     @app_commands.command()
     @app_commands.checks.has_role("IC6 Moderator")
     async def bridge(self, ctx: Interaction, player: int):
-        
+        # Establish a multi-way connection between players
         await self.bot.cursor.execute("""SELECT rp.id
         FROM bakery_discordchannel dc 
         JOIN ramen_player rp on dc.id = rp.channel_id
@@ -158,7 +160,7 @@ class BridgingCog(commands.Cog):
     @app_commands.command()
     @app_commands.checks.has_role("IC6 Moderator")
     async def unbridge(self, ctx: Interaction, player: int):
-        
+        # De-establish a multi-way connection with a player
         await self.bot.cursor.execute("""SELECT rpc.to_player_id
             FROM ramen_player_connections rpc
             WHERE rpc.from_player_id = %s;
