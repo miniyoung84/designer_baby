@@ -53,7 +53,6 @@ class CustomBot(commands.Bot):
 
         # This would also be a good place to connect to our database and
         # load anything that should be in memory prior to handling events.
-        await self.db_manager.connect()
 
     async def get_context(self, message, *, cls=Context):
         return await super().get_context(message, cls=cls)
