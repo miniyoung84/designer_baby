@@ -54,33 +54,28 @@ class ReportCardCog(commands.Cog):
     async def report(self, ctx, character: str):
         # Get the 10 best subjects from the db
         character = character.capitalize()
-        await self.bot.cursor.execute("""SELECT rc.first_name, rc.nick_name, rc.last_name, rc.fav_color, rs.name, rg.grade 
+        query = """
+            SELECT rc.first_name, rc.nick_name, rc.last_name, rc.fav_color, rs.name, rg.grade 
             FROM ramen_grade rg 
             JOIN ramen_character rc ON rg.student_id = rc.id
             JOIN ramen_subject rs ON rg.subject_id = rs.id
             WHERE rc.first_name LIKE %s OR rc.last_name LIKE %s OR rc.nick_name LIKE %s;
-        """, (character, character, character))
-        rows = await self.bot.cursor.fetchall()
+        """
+        params = (character, character, character)
+        rows = await self.bot.db_manager.execute_with_retries(query, params, fetchall=True)
+
+        if not rows:
+            await ctx.response.send_message('No data found for the specified character.')
+            return
+
         first_name = rows[0][0] if rows[0][0] else ''
-        nick_name = '"' + rows[0][1] + '"' if rows[0][1] else ''
+        nick_name = f'"{rows[0][1]}"' if rows[0][1] else ''
         last_name = rows[0][2] if rows[0][2] else ''
-        full_character = first_name + ' ' + nick_name + ' ' + last_name
+        full_character = ' '.join(part for part in [first_name, nick_name, last_name] if part)
+
         embed = await self.build_embed(character=full_character, color=rows[0][3], subjects=[row[4] for row in rows], grades_value=[row[5] for row in rows])
         await ctx.response.send_message(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(ReportCardCog(bot))
 
-
-class SelectCharacterView(View):
-    def __init__(self, characterList: list):
-        @discord.ui.select( # the decorator that lets you specify the properties of the select menu
-            placeholder = "Select a character", # the placeholder text that will be displayed if nothing is selected
-            min_values = 1, # the minimum number of values that must be selected by the users
-            max_values = 1, # the maximum number of values that can be selected by the users
-            options = [ # the list of options from which users can choose, a required field
-                discord.SelectOption(label=character) for character in characterList
-            ]
-        )
-        async def select_callback(self, select, interaction): # the function called when the user is done selecting options
-            await interaction.response.send_message(f"Awesome! I like {select.values[0]} too!")
