@@ -86,6 +86,7 @@ class BridgingCog(commands.Cog):
                 await channel.send(f'{player_name}: {message.content}')
 
     @app_commands.command()
+    @app_commands.checks.has_role("IC6 Moderator")
     async def bridge(self, ctx: Interaction, player: int):
         query1 = """
             SELECT rp.id
@@ -175,7 +176,7 @@ class BridgingCog(commands.Cog):
         await self.bot.db_conn.commit()
 
     @app_commands.command()
-    @commands.has_role("IC6 Moderator")
+    @app_commands.checks.has_role("IC6 Moderator")
     async def unbridge(self, ctx: Interaction, player: int):
         
         connected_players = await self.bot.db_manager.execute_with_retries("""SELECT rpc.to_player_id
