@@ -79,7 +79,8 @@ class BridgingCog(commands.Cog):
             channel_id = await self.bot.db_manager.execute_with_retries(query3, params3)
             channel = self.bot.get_channel(channel_id[0])
 
-            if player_name is None:
+            if player_name is None or message.content.lower() in ["p", "ping", ";p", "mp", "mping", ";mp",
+                                                                  "aa", ";a", "maa", ";ma"]:
                 await channel.send(message.content)
             else:
                 player_name = player_name[2] if player_name[2] else (player_name[0] if player_name[0] else player_name[1])
