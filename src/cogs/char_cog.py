@@ -68,9 +68,9 @@ class CharacterCog(commands.Cog):
         params = (character, character, character)
         rows = await self.bot.db_manager.execute_with_retries(query, params, fetchall=True)
         for row in rows:
-            first_name = rows[0][0] if rows[0][0] else ''
-            nick_name = f'"{rows[0][1]}"' if rows[0][1] else ''
-            last_name = rows[0][2] if rows[0][2] else ''
+            first_name = row[0] if row[0] else ''
+            nick_name = f'"{row[1]}"' if row[1] else ''
+            last_name = row[2] if row[2] else ''
             full_character = ' '.join(part for part in [first_name, nick_name, last_name] if part)
             height = await self.convert_height(row[7])
             birthday = await self.convert_date(str(row[6])[5:])
