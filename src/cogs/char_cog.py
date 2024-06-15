@@ -66,18 +66,17 @@ class CharacterCog(commands.Cog):
             WHERE rc.first_name LIKE %s OR rc.last_name LIKE %s OR rc.nick_name LIKE %s;
         """
         params = (character, character, character)
-        rows = await self.bot.db_manager.execute_with_retries(query, params)
-
+        rows = await self.bot.db_manager.execute_with_retries(query, params, fetchall=True)
         for row in rows:
-            first_name = rows[0][0] if rows[0][0] else ''
-            nick_name = f'"{rows[0][1]}"' if rows[0][1] else ''
-            last_name = rows[0][2] if rows[0][2] else ''
+            first_name = row[0] if row[0] else ''
+            nick_name = f'"{row[1]}"' if row[1] else ''
+            last_name = row[2] if row[2] else ''
             full_character = ' '.join(part for part in [first_name, nick_name, last_name] if part)
             height = await self.convert_height(row[7])
             birthday = await self.convert_date(str(row[6])[5:])
             year = self.status_names[int(row[9]) - 1] if row[9] else "Non-Student"
             embed = await self.build_embed(
-                name=full_name, pronouns = row[3], color=row[4], 
+                name=full_character, pronouns = row[3], color=row[4], 
                 age=row[5], birthday=birthday, height=height, job=row[8],
                 year=year, mutations=row[10], pet=row[11], major=row[12],
                 minor=row[13], primary_weapon=row[14], secondary_weapon=row[15], dorm=row[16]
