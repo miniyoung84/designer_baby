@@ -194,7 +194,7 @@ class DiceCog(commands.Cog):
 
         critical_failure_value = minimum_roll
         failure_upper_threshold = target - (target - number_of_dice) * leniency
-        normal_success_upper_threshold = target
+        normal_success_lower_threshold = target
         greater_success_lower_threshold = maximum_roll - (maximum_roll - target) * leniency
         critical_success_value = maximum_roll
 
@@ -216,7 +216,9 @@ class DiceCog(commands.Cog):
                 return Outcome.CRITICAL_FAILURE
             elif roll < failure_upper_threshold:
                 return Outcome.FAILURE
-            elif roll < normal_success_upper_threshold:
+            elif roll < normal_success_lower_threshold:
+                return Outcome.PARTIAL_SUCCESS
+            elif roll >= normal_success_lower_threshold and roll < greater_success_lower_threshold:
                 return Outcome.SUCCESS
             elif roll >= greater_success_lower_threshold:
                 return Outcome.GREATER_SUCCESS
