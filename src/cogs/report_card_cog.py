@@ -5,6 +5,13 @@ from discord.ui import View
 
 IS_ENABLED = True
 
+def parse_name(first, last, nick):
+    first_name = first if first else ''
+    nick_name = f'"{nick}"' if nick else ''
+    last_name = last if last else ''
+    full_character = ' '.join(part for part in [first_name, nick_name, last_name] if part)
+    return full_character
+
 class ReportCardCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -68,10 +75,7 @@ class ReportCardCog(commands.Cog):
             await ctx.response.send_message('No data found for the specified character.')
             return
 
-        first_name = rows[0][0] if rows[0][0] else ''
-        nick_name = f'"{rows[0][1]}"' if rows[0][1] else ''
-        last_name = rows[0][2] if rows[0][2] else ''
-        full_character = ' '.join(part for part in [first_name, nick_name, last_name] if part)
+        full_character = parse_name(tuple(rows[0][0:3]))
 
         embed = await self.build_embed(character=full_character, color=rows[0][3], subjects=[row[4] for row in rows], grades_value=[row[5] for row in rows])
         await ctx.response.send_message(embed=embed)

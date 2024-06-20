@@ -36,7 +36,7 @@ class ESECog(commands.Cog):
         params2 = (new_ese_value, player_id)
 
         await self.bot.db_manager.execute_with_retries(query2, params2)
-        await ctx.channel.send('ESE has been updated to ' + str(new_ese_value))
+        await ctx.channel.send(f'ESE has changed by {str(amount)} to {str(new_ese_value)}')
         await self.bot.db_manager.commit()
         await ctx.response.send_message('Update Successful')
 
@@ -50,7 +50,7 @@ class ESECog(commands.Cog):
         params = (ctx.channel.id,)
         return_value = await self.bot.db_manager.execute_with_retries(query, params)
 
-        await ctx.response.send_message('You have ' + str(return_value[0]) + ' ESE value')
+        await ctx.response.send_message('Your ESE is ' + str(return_value[0]))
 
 async def setup(bot):
     await bot.add_cog(ESECog(bot))
