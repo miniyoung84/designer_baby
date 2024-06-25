@@ -5,7 +5,7 @@ from discord.ui import View
 
 IS_ENABLED = True
 
-def parse_name(first, last, nick):
+def parse_name(first, nick, last):
     first_name = first if first else ''
     nick_name = f'"{nick}"' if nick else ''
     last_name = last if last else ''
