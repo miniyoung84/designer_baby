@@ -33,7 +33,6 @@ class MoneyCog(commands.Cog):
             """, (income + money, player_id))
         await ctx.channel.send('You received $'+ str(income) + ' income and now you have $' + str(income + money))
         await self.bot.db_manager.commit()
-        await ctx.response.send_message('Update Successful')
 
     @app_commands.command()
     @app_commands.checks.has_role("IC6 Moderator")
@@ -72,9 +71,8 @@ class MoneyCog(commands.Cog):
                 SET money = %s
                 WHERE id = %s;
             """, (money + amount, player_id))
-        await ctx.channel.send('You now have $' + str(money + amount))
+        await ctx.channel.send(f"Balance changed by {amount}. Balance: ${str(money + amount)}")
         await self.bot.db_manager.commit()
-        await ctx.response.send_message('Update Successful')
 
     @app_commands.command()
     async def my_money(self, ctx: Interaction):

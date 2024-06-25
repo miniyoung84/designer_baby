@@ -75,7 +75,7 @@ class ReportCardCog(commands.Cog):
             await ctx.response.send_message('No data found for the specified character.')
             return
 
-        full_character = parse_name(tuple(rows[0][0:3]))
+        full_character = parse_name(*tuple(rows[0][0:3]))
 
         embed = await self.build_embed(character=full_character, color=rows[0][3], subjects=[row[4] for row in rows], grades_value=[row[5] for row in rows])
         await ctx.response.send_message(embed=embed)
