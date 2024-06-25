@@ -14,7 +14,9 @@ df = dataset.to_pandas()
 
 def preprocess(character_name, text):
     if '(' in character_name:
-        character1, character2 = character_name.split('(').replace(')', '')
+        free_cheese = character_name.split('(')
+        character1 = free_cheese[0].strip()
+        character2 = free_cheese[1].split(')')[0].strip()  
 
 
 df['description'] = df.apply(lambda x: x['description'].replace(x['character_name'], '[CHARACTER]'), axis=1)
