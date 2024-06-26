@@ -17,7 +17,7 @@ class StatusCog(commands.Cog):
     async def status(self, ctx, status: str):
         game = Game(status)
         await self.bot.change_presence(status=Status.idle, activity=game)
-        await ctx.response.send_message('Status updated to: ' + status)
+        await ctx.response.send_message(f"Status updated to: {status}")
 
 async def setup(bot):
     await bot.add_cog(StatusCog(bot))
