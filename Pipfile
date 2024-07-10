@@ -7,7 +7,7 @@ name = "pypi"
 python-decouple = "==3.8"
 aiohttp = ">=3.8.6"
 discord = {extras = ["voice"], version = "==2.3.2"}
-django = "==4.2.11"
+django = "==4.2.14"
 python-dotenv = "==1.0.0"
 psycopg2 = "==2.9.9"
 
