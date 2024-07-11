@@ -6,6 +6,10 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import pandas as pd
 
+# Work on this script is based on this tutorial: https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 # Preprocess the data including removing character names and removing random characters
 from datasets import load_dataset
 
@@ -16,23 +20,67 @@ def preprocess(character_name, text):
     if '(' in character_name:
         free_cheese = character_name.split('(')
         character1 = free_cheese[0].strip()
-        character2 = free_cheese[1].split(')')[0].strip()  
+        character2 = free_cheese[1].split(')')[0].strip()
+        text = text.replace(character1, '[CHARACTER]')
+        text = text.replace(character2, '[CHARACTER]')
+    else:
+        text = text.replace(character_name, '[CHARACTER]')
+    return text
 
+df['description'] = df.apply(lambda x: preprocess(x['character_name'], x['description']), axis=1)
+df['scenario'] = df.apply(lambda x: preprocess(x['character_name'], x['scenario']), axis=1)
 
-df['description'] = df.apply(lambda x: x['description'].replace(x['character_name'], '[CHARACTER]'), axis=1)
-# for num in range(0, len(df)):
-#     character = df[num]['character_name']
-#     #print(character in dataset[num]['description'])
-#     #print('OOF ------- :' + dataset[num]['description'].replace(character, "[CHARACTER]"))
-#     df[num]['description'] = df[num]['description'].replace(character, "[CHARACTER]")
-#     df[num]['scenario'] = df[num]['scenario'].replace(character, "[CHARACTER]")
-print(df['description'])
-exit()
 # Create the encoder and decoder and test the pieces for the best output
 MAX_LENGTH = 600
 
-SOS_token = "<"
-EOS_token = ">"
+SOS_token = 0
+EOS_token = 1
+
+class WordBank:
+    def __init__(self, name):
+        self.name = name
+        self.word2index = {}
+        self.word2count = {}
+        self.index2word = {0: "SOS", 1: "EOS"}
+        self.n_words = 2
+
+    def addSentence(self, sentence):
+        for word in sentence.split(' '):
+            self.addWord(word)
+
+    def addWord(self, word):
+        if word not in self.word2index:
+            self.word2index[word] = self.n_words
+            self.word2count[word] = 1
+            self.index2word[self.n_words] = word
+            self.n_words += 1
+        else:
+            self.word2count[word] += 1
+    
+    def getWord(self, index):
+        return self.index2word[index]
+
+    def getIndex(self, word):
+        return self.word2index[word]
+
+# Turn a Unicode string to plain ASCII, thanks to
+# https://stackoverflow.com/a/518232/2809427
+def unicodeToAscii(s):
+    return ''.join(
+        c for c in unicodedata.normalize('NFD', s)
+        if unicodedata.category(c) != 'Mn'
+    )
+
+# Lowercase, trim, and remove non-letter characters
+def normalizeString(s):
+    s = unicodeToAscii(s.lower().strip())
+    s = re.sub(r"([.!?])", r" \1", s)
+    s = re.sub(r"[^a-zA-Z!?]+", r" ", s)
+    return s.strip()
+
+word_bank = WordBank('characters')
+for character in df:
+    word_bank.addSentence(normalizeString(character['description']))
 
 class EncoderRNN(nn.Module):
     def __init__(self, input_size, hidden_size, dropout_p=0.1):
@@ -66,16 +114,14 @@ class DecoderRNN(nn.Module):
             decoder_outputs.append(decoder_output)
 
             if target_tensor is not None:
-                # Teacher forcing: Feed the target as the next input
-                decoder_input = target_tensor[:, i].unsqueeze(1) # Teacher forcing
+                decoder_input = target_tensor[:, i].unsqueeze(1)
             else:
-                # Without teacher forcing: use its own predictions as the next input
                 _, topi = decoder_output.topk(1)
-                decoder_input = topi.squeeze(-1).detach()  # detach from history as input
+                decoder_input = topi.squeeze(-1).detach()
 
         decoder_outputs = torch.cat(decoder_outputs, dim=1)
         decoder_outputs = F.log_softmax(decoder_outputs, dim=-1)
-        return decoder_outputs, decoder_hidden, None # We return `None` for consistency in the training loop
+        return decoder_outputs, decoder_hidden, None
 
     def forward_step(self, input, hidden):
         output = self.embedding(input)
@@ -86,6 +132,10 @@ class DecoderRNN(nn.Module):
 # Run and evaluate the model for generating new characters
 # Evaluation: #1 see if the loss goes down and if the parameters change in between runs
 # #2 Eye test to see if what it generates makes any sense
+
+hidden_size = 128
+encoder = EncoderRNN(input_lang.n_words, hidden_size).to(device)
+decoder = DecoderRNN(hidden_size, output_lang.n_words).to(device)
 
 loss_total = 0
 
