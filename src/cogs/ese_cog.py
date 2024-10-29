@@ -36,8 +36,9 @@ class ESECog(commands.Cog):
         params2 = (new_ese_value, player_id)
 
         await self.bot.db_manager.execute_with_retries(query2, params2)
-        await ctx.channel.send(f'ESE has changed by {str(amount)} to {str(new_ese_value)}')
+        
         await self.bot.db_manager.commit()
+        await ctx.repsonse.send_message(f'ESE has changed by {str(amount)} to {str(new_ese_value)}')
 
     @app_commands.command()
     async def my_ese(self, ctx: Interaction):
