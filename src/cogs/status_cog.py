@@ -1,10 +1,6 @@
 from discord.ext import commands
-from discord import app_commands
 from discord.ext.commands import Context
-from discord import Interaction
-from discord import Client
-from discord import Game
-from discord import Status
+from discord import app_commands, Game, Status
 
 IS_ENABLED = True
 
@@ -21,7 +17,7 @@ class StatusCog(commands.Cog):
     async def status(self, ctx, status: str):
         game = Game(status)
         await self.bot.change_presence(status=Status.idle, activity=game)
-        await ctx.response.send_message('Status updated to: ' + status)
+        await ctx.response.send_message(f"Status updated to: {status}")
 
 async def setup(bot):
     await bot.add_cog(StatusCog(bot))

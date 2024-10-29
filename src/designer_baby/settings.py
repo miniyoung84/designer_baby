@@ -17,6 +17,9 @@ from decouple import config
 
 LOCAL_DB_USER = config("LOCAL_DB_USER")
 LOCAL_DB_PW = config("LOCAL_DB_PW")
+LOCAL_DB_NAME = config("LOCAL_DB_NAME")
+LOCAL_DB_HOST = config("LOCAL_DB_HOST")
+SECRET_KEY = config("SECRET_KEY")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,9 +27,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-cuf(5rewipe7o&59k3@0+jh6*mqp^a3wh!g*b0!f-i9)5w*qxz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'bakery.apps.BakeryConfig',
+    'ramen.apps.RamenConfig',
 ]
 
 MIDDLEWARE = [
@@ -82,10 +84,10 @@ WSGI_APPLICATION = 'designer_baby.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': "freezer",
-        'USER': LOCAL_DB_USER,
-        'PASSWORD': LOCAL_DB_PW,
-        'HOST': "localhost",
+        'NAME': LOCAL_DB_NAME,
+        'USER': "ub5djgbll5qb77",
+        'PASSWORD': "p855c6ab13186d87ba0b799c614e41521f732b1a3538ee0f064bca42e2d9be613",
+        'HOST': LOCAL_DB_HOST,
         'PORT': "5432"
     }
 }
