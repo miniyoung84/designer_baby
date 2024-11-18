@@ -1,4 +1,4 @@
-aiohttp==3.9.5
+aiohttp==3.10.11
 discord[voice]==2.3.2
 Django==5.0.4
 numpy==1.26.4
