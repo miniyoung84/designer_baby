@@ -1,9 +1,26 @@
 from django.test import TestCase
-from .models import Character, Subject
+from .models import *
+from bakery.models import *
+from cogs.bridging_cog import BridgingCog
 from cogs.report_card_cog import parse_name
 import datetime
+    
 
-# Create your tests here.
+class BridgingCogTestCase(TestCase):
+    def setUp(self):
+        p1 = Player.objects.create(name="Quinn", channel=DiscordChannel.objects.create(discord_id=12345678),
+                                   discord_user=DiscordUser.objects.create(discord_id=5483845),
+                                   ese=0)
+        p2 = Player.objects.create(name="Zoe", channel=DiscordChannel.objects.create(discord_id=2342365),
+                                   discord_user=DiscordUser.objects.create(discord_id=4363673457),
+                                   ese=0)
+    
+    def test_one(self):
+        cog = BridgingCog()
+        result = BridgingCog.get_party_members(cog, 5483845)
+
+        self.assertEqual(result, None)
+
 class ReportCardCogTestCase(TestCase):
     def test_parse_name(self):
 
@@ -46,5 +63,5 @@ class ReportCardCogTestCase(TestCase):
         last_name = Character.objects.get(id=sample_character.id).last_name
 
         # Test the parse_name function
-        parsed_name = parse_name(first_name, last_name, nick_name)
+        parsed_name = parse_name(first_name, nick_name, last_name)
         self.assertEqual(parsed_name, "Skibidi Sigma")
