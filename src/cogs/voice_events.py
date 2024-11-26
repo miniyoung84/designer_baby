@@ -1,3 +1,4 @@
+import asyncio
 import discord
 from discord.ext import commands
 
@@ -13,10 +14,10 @@ class VoiceEvents(commands.Cog):
         await member.guild.voice_client.disconnect()
       voice_channel = after.channel
       vc = await voice_channel.connect()
-      vc.play(discord.FFmpegPCMAudio('placeholder.mp3'))
+      vc.play(discord.FFmpegPCMAudio('assets/sounds/intros/generic/whatsup.m4a'))
       # Wait for the audio to finish playing
       while vc.is_playing():
-        await discord.utils.sleep_until(vc.loop.time() + 1)
+        await asyncio.sleep(1)
 
 async def setup(bot):
   await bot.add_cog(VoiceEvents(bot))
