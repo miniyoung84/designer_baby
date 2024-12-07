@@ -34,7 +34,7 @@ class CustomBot(commands.Bot):
     async def setup_hook(self) -> None:
 
         # here, we are loading extensions prior to sync to ensure we are syncing interactions defined in those extensions.
-
+        
         for filename in os.listdir('src/cogs'):
             if filename.endswith('.py'):
                 await self.load_extension(f'cogs.{filename[:-3]}')

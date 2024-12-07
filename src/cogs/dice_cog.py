@@ -229,7 +229,7 @@ class DiceCog(commands.Cog):
         await ctx.response.send_message(content, embed=embed, view=view)
 
     @app_commands.command()
-    async def roll(self, ctx: Interaction, notation: str, target: Optional[int] = None, leniency: float = 0.0):
+    async def roll(self, ctx: Interaction, notation: str, target: Optional[int] = None, leniency: float = 0.0, description: Optional[str] = ""):
         if notation.strip().lower() == 'help':
             await ctx.response.send_message(embed=self.build_help_embed())
             return
@@ -240,7 +240,11 @@ class DiceCog(commands.Cog):
             return
 
         view = RollDeclineView(notation, target, leniency, self.bot, ctx)
-        embed = self.build_probabilities_embed(notation, target, leniency, 'Do you want to proceed with this roll?')
+        if description: 
+            prompt = f"Do you want to roll for {description}?"
+        else:
+            prompt = "Do you want to proceed with this roll?"
+        embed = self.build_probabilities_embed(notation, target, leniency, prompt)
         await ctx.response.send_message(embed=embed, view=view)
 
     @app_commands.command()

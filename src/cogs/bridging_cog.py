@@ -5,6 +5,8 @@ from discord import Interaction
 
 IS_ENABLED = True
 
+
+
 class BridgingCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -15,22 +17,31 @@ class BridgingCog(commands.Cog):
             await ctx.send('This Cog is disabled')
         return IS_ENABLED
     
-    @app_commands.command()
-    async def party(self, ctx: Interaction):
+    async def get_party_members(self, channel_id):
         query = """SELECT rpc.to_player_id
-            FROM ramen_player_connections rpc
-            JOIN ramen_player rp on rpc.from_player_id = rp.id
-            JOIN bakery_discordchannel dc on dc.id = rp.channel_id
-            WHERE dc.discord_id = %s;
-            """
-        params = (ctx.channel.id,)
+                FROM ramen_player_connections rpc
+                JOIN ramen_player rp on rpc.from_player_id = rp.id
+                JOIN bakery_discordchannel dc on dc.id = rp.channel_id
+                WHERE dc.discord_id = %s;
+                """
+        params = (channel_id,)
         connections = await self.bot.db_manager.execute_with_retries(query, params, fetchall=True)
         player_ids = [player[0] for player in connections]
 
         if player_ids:
             for player_id in player_ids:
                 player_names_str = ', '.join(str(player_id))
-            await ctx.response.send_message(f"Connected with Players: {player_names_str}")
+            return player_names_str
+        else:
+            return None
+    
+    @app_commands.command()
+    async def party(self, ctx: Interaction):
+
+        response = await self.get_party_members(ctx.channel.id)
+
+        if response:
+            await ctx.response.send_message(f"Connected with Players: {response}")
         else:
             await ctx.response.send_message("No Active Connections Detected")
 
