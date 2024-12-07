@@ -6,6 +6,20 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import pandas as pd
 
+# Used model is the Google Gemma model that can be found here https://www.kaggle.com/m/3301
+from transformers import AutoTokenizer, AutoModelForCausalLM
+tokenizer = AutoTokenizer.from_pretrained("cattoroboto/gemma-2-9b-CharacterCodex-qlora")
+model = AutoModelForCausalLM.from_pretrained(
+    "cattoroboto/gemma-2-9b-CharacterCodex-qlora",
+    device_map="auto",
+)
+
+input_text = "Create a character with the name Teresa Walker"
+input_ids = tokenizer(input_text, return_tensors="pt").to("cuda")
+
+outputs = model.generate(**input_ids, max_new_tokens=32)
+print(tokenizer.decode(outputs[0]))
+'''
 # Work on this script is based on this tutorial: https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -172,3 +186,4 @@ import matplotlib.pyplot as plt
 plt.plot(loss_total)
 
 pickle.dump(model, open("model.p", "wb"))
+'''
