@@ -54,21 +54,17 @@ class VoiceEvents(commands.Cog):
       if not (member.guild.voice_client is None):
         await member.guild.voice_client.disconnect()
 
-      # Fetch the oldest intro sound for the user
       intro_sound = await self.get_oldest_intro_sound(member.id)
 
       if intro_sound:
         intro_sound_id, file_name = intro_sound
 
-        # Update the last_played timestamp
         await self.update_last_played(intro_sound_id)
 
-        # Play the intro sound
         voice_channel = after.channel
         vc = await voice_channel.connect()
         vc.play(discord.FFmpegPCMAudio(f'assets/sounds/{file_name}'))
 
-        # Wait for the audio to finish playing
         while vc.is_playing():
           await asyncio.sleep(1)
       else:
