@@ -19,7 +19,7 @@ class VoiceEvents(commands.Cog):
     weekday = today.weekday()  # Monday = 0, Sunday = 6
 
     query = """
-        SELECT id, file_name, length, condition 
+        SELECT id, file_name, length, condition, generic
         FROM bakery_introsound 
         WHERE user_id = (SELECT id FROM bakery_discorduser WHERE discord_id = %s)
     """
@@ -51,7 +51,7 @@ class VoiceEvents(commands.Cog):
 
     # If no user-specific intro sound, fetch the oldest generic sound
     query = """
-        SELECT id, file_name, length, condition 
+        SELECT id, file_name, length, condition, generic
         FROM bakery_introsound
         WHERE generic = true
     """
@@ -118,7 +118,7 @@ class VoiceEvents(commands.Cog):
       # Fetch an intro sound that fits the max length (if applicable)
       intro_sound = await self.get_oldest_intro_sound(member.id, max_length)
       if intro_sound:
-        intro_sound_id, file_name, _, _ = intro_sound
+        intro_sound_id, file_name, _, _, generic = intro_sound
 
         # Update the last played timestamp
         await self.update_last_played(intro_sound_id)
@@ -131,7 +131,10 @@ class VoiceEvents(commands.Cog):
         try:
           voice_channel = after.channel
           vc = await voice_channel.connect()
-          vc.play(discord.FFmpegPCMAudio(f'./assets/sounds/intros/{member.id}/{file_name}'))
+          if generic:
+            vc.play(discord.FFmpegPCMAudio(f'./assets/sounds/intros/generic/{file_name}'))
+          else:
+            vc.play(discord.FFmpegPCMAudio(f'./assets/sounds/intros/{member.id}/{file_name}'))
 
         except Exception as e:
             print(f"Error playing intro sound for {member.id}: {e}")
