@@ -34,7 +34,7 @@ class VoiceEvents(commands.Cog):
 
     sounds = await self.bot.db_manager.execute_with_retries(query, params, fetchall=True)
     for sound in sounds:
-      sound_id, file_name, length, condition = sound
+      sound_id, file_name, length, condition, _ = sound
 
       # Check the condition field
       if condition:
@@ -64,7 +64,7 @@ class VoiceEvents(commands.Cog):
 
     sounds = await self.bot.db_manager.execute_with_retries(query, params, fetchall=True)
     for sound in sounds:
-      sound_id, file_name, length, condition = sound
+      sound_id, file_name, length, condition, _ = sound
 
       # Check the condition field
       if condition:
