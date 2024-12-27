@@ -6,15 +6,12 @@ class DiscordUser(models.Model):
   description = models.CharField(max_length=255, blank=True, null=True)
 
   def __str__(self):
-    return self.name
+    return self.description
 
 class DiscordChannel(models.Model):
   discord_id = models.BigIntegerField()
   competitive = models.BooleanField(default=False)
   max_length = models.IntegerField(blank=True, null=True)
-
-  def __str__(self):
-    return self.name
 
 class IntroSound(models.Model):
   file_name = models.CharField(max_length=255)
@@ -24,9 +21,6 @@ class IntroSound(models.Model):
   length = models.FloatField()
   last_played = models.DateTimeField(blank=True, null=True)
   condition = models.JSONField(blank=True, null=True)
-
-  def __str__(self):
-    return self.name
 
 class ValorantAgent(models.Model):
   name = models.CharField(max_length=255)
